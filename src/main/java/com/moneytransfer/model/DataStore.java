@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class DataStore {
 
-    private static DataStore instance;
+    private static DataStore instance = new DataStore();
     private Map<String, Account> accounts = new HashMap<>();
     private List<Transaction> transactions = new ArrayList<>();
     private List<Account> lockedAccounts = new ArrayList<>();
@@ -16,9 +16,6 @@ public class DataStore {
     }
 
     public static DataStore getInstance() {
-        if (instance == null) {
-            instance = new DataStore();
-        }
         return instance;
     }
 
@@ -30,7 +27,7 @@ public class DataStore {
         transactions.add(transaction);
     }
 
-    public boolean lock(String clientName) {
+    public synchronized boolean lock(String clientName) {
         Account account = getAccount(clientName);
         if (account == null || lockedAccounts.indexOf(account) >= 0)
             return false;
@@ -38,7 +35,7 @@ public class DataStore {
         return true;
     }
 
-    public boolean isValidTransaction(Transaction transaction) {
+    public synchronized boolean isValidTransaction(Transaction transaction) {
         Account fromAccount = getAccount(transaction.getFromClientName());
         Account toAccount = getAccount(transaction.getToClientName());
         return fromAccount != null &&
@@ -47,7 +44,7 @@ public class DataStore {
                 fromAccount.getBalance() >= transaction.getAmount();
     }
 
-    public boolean unlock(String clientName) {
+    public synchronized boolean unlock(String clientName) {
         Account account = getAccount(clientName);
         if (account != null && lockedAccounts.contains(account))
             return lockedAccounts.remove(account);

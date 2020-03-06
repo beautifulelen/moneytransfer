@@ -28,14 +28,6 @@ public class Application {
 
     public static void main(String[] args) throws Exception {
         Server server = initServer(Constants.PORT);
-//        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-//        context.setContextPath("/");
-//        server.setHandler(context);
-//        ServletHolder servletHolder = context.addServlet(ServletContainer.class, "/*");
-//
-//        servletHolder.setInitParameter("jersey.config.server.provider.classnames",
-//                join(AccountService.class.getCanonicalName(),
-//                     TransactionService.class.getCanonicalName()));
         try {
             server.start();
         } catch (IOException exception) {

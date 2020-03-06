@@ -49,4 +49,9 @@ public class Account {
         }
         return  (balance == account.balance);
     }
+
+    @Override
+    public int hashCode() {
+        return (int) (balance << 31 + clientName.hashCode());
+    }
 }

@@ -28,14 +28,26 @@ public class TransactionService {
     public Response transfer(Transaction transaction) throws WebApplicationException {
         if (!DataStore.getInstance().lock(transaction.getToClientName()) || !DataStore.getInstance().lock(transaction.getToClientName()))
             throw new WebApplicationException(Constants.BUSY_ACCOUNTS, Response.Status.BAD_REQUEST);
+        try {
+            checkAndTransfer(transaction);
+        }
+        catch (WebApplicationException e) {
+            throw e;
+        }
+        finally {
+            if (!DataStore.getInstance().unlock(transaction.getFromClientName()) || !DataStore.getInstance().unlock(transaction.getToClientName()))
+                throw new WebApplicationException(Constants.UNLOCK_ERROR, Response.Status.BAD_REQUEST);
+        }
+
+        return Response.status(Response.Status.OK).build();
+    }
+
+    private void checkAndTransfer(Transaction transaction) throws WebApplicationException {
         if (DataStore.getInstance().isValidTransaction(transaction)) {
             DataStore.getInstance().doTransaction(transaction);
         } else {
             throw new WebApplicationException(Constants.BAD_TRANSACTION, Response.Status.BAD_REQUEST);
         }
-        if (!DataStore.getInstance().unlock(transaction.getFromClientName()) || !DataStore.getInstance().unlock(transaction.getToClientName()))
-            throw new WebApplicationException(Constants.UNLOCK_ERROR, Response.Status.BAD_REQUEST);
-        return Response.status(Response.Status.OK).build();
     }
 
     /**
